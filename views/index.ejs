@@ -1,0 +1,56 @@
+<!-- Canvas -->
+<canvas id="canvas1" width="600" height="400" 
+ style="position: absolute; top: 0; left: 0; border: solid 1px black"></canvas>
+
+<!-- JavaScript -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// Receive positions
+var socket = io.connect('http://localhost');
+socket.on('pos', function (data) {
+  //console.log(data);
+  drawCircle(data.x, data.y, data.color);
+});
+
+// Draw circle
+function drawCircle (x, y, color) {
+  var RADIUS = 10;
+  var canvas = document.getElementById('canvas1');
+  if (canvas.getContext) {
+    var context = canvas.getContext('2d');
+    context.fillStyle = color;
+    context.beginPath();
+    context.arc(x, y, RADIUS, 0, Math.PI * 2.0, true);
+    context.fill();
+  }
+}
+
+var isSending = false;
+
+// Start send position
+function startSendPosition () {
+  //console.log('start send position');
+  isSending = true;
+}
+
+// Finish send position
+function endSendPosition () {
+  //console.log('end send position');
+  isSending = false;
+}
+
+// Send position
+function sendPosition (event) {
+  if (isSending) {
+    // console.log('send position');
+    // send pos 
+    socket.emit('pos', {x: event.pageX, y: event.pageY});
+  }
+}
+
+// Mouse down
+window.onmousedown = startSendPosition;
+window.onmouseup = endSendPosition;
+window.onmousemove = sendPosition;
+
+</script>
